@@ -1,0 +1,38 @@
+<%- include('./partials/header') %>
+
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="/dashboard">Games</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/leaderboard">Leaderboard</a>
+        </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="card-deck">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">New Game</h5>
+                    <a href="/games/new"><i class="fas fa-plus fa-5x"></i></a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Ziggy</h5>
+                    <a href="/games/new"><i class="fas fa-th fa-5x"></i></a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Bojack</h5>
+                    <a href="/games/new"><i class="fas fa-th fa-5x"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer') %>

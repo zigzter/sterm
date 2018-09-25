@@ -1,0 +1,23 @@
+<%- include('./partials/header') %>
+
+<div class="card text-center bg-dark text-white mt-5 shadow-lg">
+    <div class="card-header">Sign In</div>
+    <div class="card-body">
+        <form action="/users">
+            <div class="form-group">
+                <label for="username">Username:</label> <br>
+                <input class="form-control" id="username" name="username" type="text">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label> <br>
+                <input class="form-control" id="password" name="password" type="password">
+            </div>
+
+            <input type="submit" value="Sign In" class="btn btn-success btn-block">
+        </form>
+        <a class="btn btn-outline-warning btn-block mt-4" href="/">Go Back</a>
+    </div>
+</div>
+
+<%- include('./partials/footer') %>
