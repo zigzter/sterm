@@ -17,6 +17,14 @@ app.get('/leaderboard', (req,res) => {
     res.render('leaderboard');
 });
 
+app.get('/games/new', (req,res) => {
+    res.render('games/new');
+});
+
+app.get('/games/show', (req,res) => {
+    res.render('games/show');
+});
+
 app.get('/users/signin', (req,res) => {
     res.render('signin');
 });

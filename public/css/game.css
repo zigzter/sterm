@@ -1,0 +1,15 @@
+#game {
+    width: 50vh;
+    height: 50vh;
+    margin: 0 auto;
+}
+
+.square {
+    box-sizing: border-box;
+    background-color: lightgray;
+    border: 2px solid black;
+    width: calc(100% / 3);
+    height: calc(100% / 3);
+    font-size: 2rem;
+    text-align: center;
+}

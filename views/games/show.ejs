@@ -1,0 +1,42 @@
+<%- include('../partials/header') %>
+
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="false">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">Waiting for player two..</h5>
+      </div>
+      <div class="modal-body">
+        <button class="btn btn-block btn-outline-primary p-4">Make Public?</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-warning">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="victory" tabindex="-1" role="dialog" aria-labelledby="victoryTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h1>You won!</h1>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button id="reset-game" type="button" class="btn btn-warning" data-dismiss="modal">Reset Game</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" id="game"></div>
+
+<script>
+    // document.addEventListener('DOMContentLoaded', () => {
+    //     $('#exampleModalCenter').modal('show') 
+    // });
+</script>
+<script src="/js/tictactoe.js"></script>
+
+<%- include('../partials/footer') %>
