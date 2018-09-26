@@ -1,4 +1,5 @@
 const express = require('express');
+const ttt = require('./games/tictactoe');
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -17,20 +18,10 @@ app.get('/leaderboard', (req,res) => {
     res.render('leaderboard');
 });
 
-app.get('/games/new', (req,res) => {
-    res.render('games/new');
-});
+const userRouter = require('./routes/users');
+app.use('/users', userRouter);
 
-app.get('/games/show', (req,res) => {
-    res.render('games/show');
-});
-
-app.get('/users/signin', (req,res) => {
-    res.render('signin');
-});
-
-app.get('/users/signup', (req,res) => {
-    res.render('signup');
-});
+const gamesRouter = require('./routes/games');
+app.use('/games', gamesRouter);
 
 app.listen(3000);
