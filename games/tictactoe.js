@@ -7,12 +7,8 @@ module.exports = class TicTacToe {
         this.moves = Array(9);
         this.wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
     }
-    addMove(boardIndex, id){
-        // console.log('current:', this.currentPlayer);
-        // console.log('player X:', this.playerX);
-        // console.log('player O:', this.playerO);
-        // console.log('=========================')
-        if(this.currentPlayer === id && this.moves[boardIndex] === undefined){
+    addMove(boardIndex, playerId){
+        if(this.currentPlayer === playerId && this.moves[boardIndex] === undefined){
             if(this.currentPlayer === this.playerX){
                 this.moves[boardIndex] = 'x';
                 this.currentPlayer = this.playerO;
@@ -24,7 +20,7 @@ module.exports = class TicTacToe {
             }
         } else {
             // prevent cheating and send warning to user
-            return false
+            return false;
         }
     }
     victoryCheck(){
@@ -43,8 +39,11 @@ module.exports = class TicTacToe {
                 }
             }
             if(count === 3){
-                console.log(`${move} wins`);
-                return move;
+                if(move === 'x'){
+                    return this.playerX;
+                } else if(move === 'o'){
+                    return this.playerO;
+                }
             }
         }
     }

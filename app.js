@@ -26,34 +26,37 @@ app.use('/users', userRouter);
 const gamesRouter = require('./routes/games');
 app.use('/games', gamesRouter);
 
-io.sockets.on('connection', socket => {
-    socket.on('join-room', room => {
-        let playerX, playerO;
-        if(!playerX){
-            playerX = socket.id;
-            console.log(playerX)
-        } else if(!playerO){
-            playerO = socket.id;
-        }
-        const game = new Ttt(playerX, playerO);
+const games = {};
+
+io.on('connection', socket => {
+    let room, game;
+    socket.on('join-room', roomId => {
+        room = roomId;
         socket.join(room);
-        // console.log(`user connected to room ${room}, id: ${socket.id}`);
-        socket.on('move', moveInfo => {
-            const move = moveInfo.squareId;
-            const id = moveInfo.playerId;
-            const playerMove = game.addMove(move, id);
-            if(playerMove){
-                io.sockets.to(room).emit('valid-move', {move, playerMove});
-                const victory = game.victoryCheck();
-                if(victory){
-                    io.sockets.to(room).emit('victory', victory);
-                }
-            } else {
-                io.sockets.to(room).emit('invalid-move', {move, playerMove});
+        socket.broadcast.emit('new-user', socket.id);
+    });
+    socket.on('start-game', newGame => {
+        game = new Ttt(newGame.playerX, newGame.playerO);
+        games[room] = game;
+        io.sockets.to(room).emit('game-started');
+    });
+    socket.on('move', moveInfo => {
+        game = games[room];
+        const { squareId, playerId } = moveInfo;
+        const playerMove = game.addMove(squareId, playerId);
+        if(playerMove){
+            io.sockets.to(room).emit('valid-move', {squareId, playerMove});
+            const winningUser = game.victoryCheck();
+            if(winningUser){
+                io.sockets.to(room).emit('victory', winningUser);
             }
-        });
+        } else {
+            io.sockets.to(room).emit('invalid-move', {squareId, playerMove});
+        }
+    });
+    socket.on('new-message', msg => {
+        io.sockets.to(room).emit('new-message', msg);
     });
 });
-
 
 http.listen(3000);

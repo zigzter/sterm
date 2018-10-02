@@ -2,6 +2,10 @@ const gameContainer = document.querySelector('#game');
 const resetGameButton = document.querySelector('#reset-game');
 const socket = io.connect();
 const roomId = location.pathname.split('/')[2];
+const feedback = document.querySelector('.feedback').firstChild;
+const chatroom = document.querySelector('#chatroom');
+const sendMessage = document.querySelector('#send-message');
+const message = document.querySelector('#message');
 let playerId;
 
 for(let i = 0; i < 9; i += 1){
@@ -21,15 +25,12 @@ squares.forEach(square => {
 });
 
 resetGameButton.addEventListener('click', () => {
-    resetGame();
+    // resetGame();
 });
 
-function resetGame(){
-    squares.forEach(square => {
-        square.innerHTML = '';
-        gameOver = false;
-    });
-}
+// document.addEventListener('DOMContentLoaded', () => {
+//     $('#waiting').modal('show');
+// })
 
 socket.on('connect', () => {
     socket.emit('join-room', roomId);
@@ -38,9 +39,7 @@ socket.on('connect', () => {
 
 socket.on('valid-move', moveObj => {
     // update board
-    console.log('valid');
-    document.querySelector(`#s${moveObj.move}`).innerHTML = moveObj.playerMove;
-
+    document.querySelector(`#s${moveObj.squareId}`).innerHTML = moveObj.playerMove;
 });
 
 socket.on('invalid-move', msg => {
@@ -49,6 +48,27 @@ socket.on('invalid-move', msg => {
 });
 
 socket.on('victory', victor => {
-    // send warning/error
+    console.log(victor);
     $('#victory').modal('show');
+});
+
+socket.on('new-user', user => {
+    console.log('new user connected');
+    socket.emit('start-game', {playerO: user, playerX: socket.id})
+});
+
+socket.on('game-started', () => {
+    $('#waiting').modal('hide')
+    console.log('game started');
+});
+
+sendMessage.addEventListener('click', () => {
+    const msg = message.value
+    socket.emit('new-message', msg)
+})
+
+socket.on('new-message', msg => {
+    const msgP = document.createElement('p');
+    msgP.innerText = msg;
+    chatroom.appendChild(msgP);
 });
