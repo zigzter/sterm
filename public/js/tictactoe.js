@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
 shareLink.click(() => {
     roomLink.select();
     document.execCommand("copy");
