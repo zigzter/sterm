@@ -7,10 +7,16 @@
         <h5 class="modal-title" id="waitingTitle">Waiting for player two..</h5>
       </div>
       <div class="modal-body">
+        <div class="input-group mb-3">
+          <input id="roomLink" type="text" class="form-control" value="localhost:3000/games/<%= id %>" readonly>
+          <div class="input-group-append">
+            <button id="shareLink" class="btn btn-outline-secondary" type="button" data-toggle="popover" data-placement="top" data-content="Link copied!">Copy</button>
+          </div>
+        </div>
         <button class="btn btn-block btn-outline-primary p-4">Make Public?</button>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Cancel</button>
+        <a class="btn btn-outline-warning" href="/dashboard">Cancel Game</a>
       </div>
     </div>
   </div>
@@ -20,21 +26,33 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-body">
-
+        <h1>You win!</h1>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button id="reset-game" type="button" class="btn btn-warning" data-dismiss="modal">Reset Game</button>
+        <a class="btn btn-outline-warning" href="/dashboard">Leave Game</a>
       </div>
     </div>
   </div>
 </div>
 
-<div class="feedback"><p></p></div>
+<div class="modal fade" id="loss" tabindex="-1" role="dialog" aria-labelledby="lossTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h1>You lose!</h1>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-warning" href="/dashboard">Leave Game</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="feedback"></div>
 <div class="row" id="game"></div>
 
 <div class="card mt-4">
-  <div id="chatroom" class="card-body" style="min-height: 200px;">
+  <div id="chatroom" class="card-body">
   </div>
   <div class="card-footer">
     <section id="input-zone" class="d-flex"> 
@@ -44,6 +62,5 @@
   </div>
 </div>
 
-<script src="/js/tictactoe.js"></script>
 
 <%- include('../partials/footer') %>

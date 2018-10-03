@@ -10,7 +10,25 @@
     border: 2px solid black;
     width: calc(100% / 3);
     height: calc(100% / 3);
-    font-size: 2rem;
     text-align: center;
+    font-size: 1.1rem;
 }
 
+#chatroom {
+    overflow-y: scroll;
+    height: 200px;
+}
+
+.message {
+    margin: 0;
+    height: 30px;
+    font-size: 1.1rem;
+}
+
+.message:nth-child(even) {
+    background-color: whitesmoke;
+}
+
+#feedback {
+    text-align: center;
+}

@@ -36,9 +36,10 @@ io.on('connection', socket => {
         socket.broadcast.emit('new-user', socket.id);
     });
     socket.on('start-game', newGame => {
-        game = new Ttt(newGame.playerX, newGame.playerO);
+        const { playerX, playerO } = newGame;
+        game = new Ttt(playerX, playerO);
         games[room] = game;
-        io.sockets.to(room).emit('game-started');
+        io.sockets.to(room).emit('game-started', { playerX, playerO });
     });
     socket.on('move', moveInfo => {
         game = games[room];
@@ -54,8 +55,9 @@ io.on('connection', socket => {
             io.sockets.to(room).emit('invalid-move', {squareId, playerMove});
         }
     });
-    socket.on('new-message', msg => {
-        io.sockets.to(room).emit('new-message', msg);
+    socket.on('new-message', msgData => {
+        const { msg, playerId } = msgData;
+        io.sockets.to(room).emit('new-message', { msg, playerId });
     });
 });
 
