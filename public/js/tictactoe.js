@@ -51,6 +51,13 @@ shareLink.click(() => {
     }, 700)
 });
 
+function timer(){
+    let secondsElapsed = 0;
+    setInterval(() => {
+        seconds += 1;
+    }, 1000);
+}
+
 // GAME =======================================================================
 
 socket.on('connect', () => {
@@ -109,3 +116,4 @@ socket.on('new-message', msgData => {
     chatroom.append(msgP);
     chatroom.scrollTop = chatroom.scrollHeight;
 });
+

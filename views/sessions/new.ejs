@@ -1,16 +1,16 @@
-<%- include('./partials/header') %>
+<%- include('../partials/header') %>
 
 <div class="card text-center bg-dark text-white mt-5 shadow-lg">
     <div class="card-header">Sign In</div>
     <div class="card-body">
-        <form action="/users">
+        <form action="/sessions" method="POST">
             <div class="form-group">
-                <label for="username">Username:</label> <br>
+                <label for="username">Username:</label>
                 <input class="form-control" id="username" name="username" type="text">
             </div>
 
             <div class="form-group">
-                <label for="password">Password:</label> <br>
+                <label for="password">Password:</label>
                 <input class="form-control" id="password" name="password" type="password">
             </div>
 
@@ -20,4 +20,4 @@
     </div>
 </div>
 
-<%- include('./partials/footer') %>
+<%- include('../partials/footer') %>
