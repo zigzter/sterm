@@ -32,8 +32,8 @@ router.get('/', (req,res) => {
 });
 
 router.get('/:id', (req,res) => {
-    const id = req.params.id;
-    res.render('games/show', { id });
+    const room_id = req.params.id;
+    res.render('games/show', { room_id });
 });
 
 router.post('/:id', (req,res) => {

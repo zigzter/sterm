@@ -11,6 +11,11 @@ router.get('/new', (req,res) => {
     res.render('users/new');
 });
 
+router.get('/vars', (req,res) => {
+    const { id, username } = req.currentUser;
+    res.json({ user_id: id, username });
+});
+
 router.post('/', (req,res) => {
     const { username, email, password, password_confirmation } = req.body;
     if(password === password_confirmation){

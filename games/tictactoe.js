@@ -7,8 +7,8 @@ module.exports = class TicTacToe {
         this.moves = Array(9);
         this.wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
     }
-    addMove(boardIndex, playerId){
-        if(this.currentPlayer === playerId && this.moves[boardIndex] === undefined){
+    addMove(boardIndex, userId){
+        if(this.currentPlayer === userId && this.moves[boardIndex] === undefined){
             if(this.currentPlayer === this.playerX){
                 this.moves[boardIndex] = 'x';
                 this.currentPlayer = this.playerO;

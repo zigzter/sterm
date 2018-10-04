@@ -1,6 +1,4 @@
 'use strict';
-const gameContainer   = $('#game');
-const sendMessage     = $('#send-message');
 const shareLink       = $('#shareLink');
 const feedback        = $('#feedback');
 const chatroom        = $('#chatroom');
@@ -8,22 +6,26 @@ const message         = $('#message');
 const roomUrl         = location.href;
 const roomId          = location.pathname.split('/')[2];
 const socket          = io.connect();
-let playerId;
+let playerId, user_id, username;
+
+fetch('/users/vars').then(resp => {
+    return resp.json();
+}).then(data => {
+    username = data.username;
+    user_id = data.user_id;
+    socket.emit('new-user', { username, user_id });
+});
 
 for(let i = 0; i < 9; i += 1){
     const square = document.createElement('div');
     square.classList.add('square', 'd-flex', 'justify-content-center', 'align-items-center');
     square.id = 's' + i;
-    gameContainer.append(square);
+    $('#game').append(square);
 }
 
-const squares = document.querySelectorAll('.square');
-
-squares.forEach(square => {
-    square.addEventListener('click', event => {
-        const squareId = event.target.id.slice(1);
-        socket.emit('move', {squareId, playerId});
-    });
+$('.square').click(event => {
+    const squareId = event.target.id.slice(1);
+    socket.emit('move', {squareId, playerId});
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $(document).keypress(function(event){
         let keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
-            sendMessage.click();   
+            $('#send-message').click();   
         }
     });
     $('#makePublic').click(() => {
@@ -48,7 +50,7 @@ shareLink.click(() => {
     shareLink.popover('show');
     setTimeout(() => {
         shareLink.popover('hide');
-    }, 700)
+    }, 700);
 });
 
 function timer(){
