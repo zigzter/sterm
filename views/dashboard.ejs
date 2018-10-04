@@ -9,30 +9,30 @@
         <li class="nav-item">
             <a class="nav-link" href="/leaderboard">Leaderboard</a>
         </li>
+            <form class="form-inline ml-auto " action="/games" method="get">
+                <input id="refresh" type="submit" value="Refresh" class="btn btn-outline-success">
+            </form>
         </ul>
     </div>
     <div class="card-body">
-        <div class="card-deck">
+        <div class="card-columns">
             <div class="card">
                 <div class="card-body text-center">
                     <h5 class="card-title">New Game</h5>
                     <a href="/games/new"><i class="fas fa-plus fa-5x"></i></a>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Ziggy</h5>
-                    <a href="/games/1"><i class="fas fa-th fa-5x"></i></a>
+            <% for(let game of publicGames){ %>
+                <div class="card game">
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><%= game.game_type.toUpperCase() %></h5>
+                        <a href="/games/<%= game.room_id %>"><i class="fas fa-th fa-5x"></i></a>
+                    </div>
                 </div>
-            </div>
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Bojack</h5>
-                    <a href="/games/2"><i class="fas fa-th fa-5x"></i></a>
-                </div>
-            </div>
+            <% } %>
         </div>
     </div>
 </div>
 
+<script src="/js/dashboard.js"></script>
 <%- include('./partials/footer') %>

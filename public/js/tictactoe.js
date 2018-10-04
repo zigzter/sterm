@@ -10,11 +10,9 @@ const roomId          = location.pathname.split('/')[2];
 const socket          = io.connect();
 let playerId;
 
-
-
 for(let i = 0; i < 9; i += 1){
     const square = document.createElement('div');
-    square.classList.add('square');
+    square.classList.add('square', 'd-flex', 'justify-content-center', 'align-items-center');
     square.id = 's' + i;
     gameContainer.append(square);
 }
@@ -36,6 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
             sendMessage.click();   
         }
     });
+    $('#makePublic').click(() => {
+        fetch(`/games/${roomId}`, { method: 'POST' });
+        $('#makePublic').prop('disabled', true);
+        $('#makePublic').text('Game is public');
+    });
 });
 
 shareLink.click(() => {
@@ -47,6 +50,8 @@ shareLink.click(() => {
         shareLink.popover('hide');
     }, 700)
 });
+
+// GAME =======================================================================
 
 socket.on('connect', () => {
     socket.emit('join-room', roomId);
@@ -87,6 +92,8 @@ socket.on('game-started', players => {
     $('#waiting').modal('hide')
     console.log('game started');
 });
+
+// CHAT =======================================================================
 
 sendMessage.click(() => {
     const msg = message.val();

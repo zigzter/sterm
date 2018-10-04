@@ -3,6 +3,7 @@ const app = express();
 const http = require('http').Server(app);
 const Ttt = require('./games/tictactoe.js');
 const io = require('socket.io')(http);
+const knex = require('./db/client');
 
 app.set('view engine', 'ejs');
 
@@ -13,7 +14,9 @@ app.get('/', (req,res) => {
 });
 
 app.get('/dashboard', (req,res) => {
-    res.render('dashboard');
+    knex('games').where({ is_public: true }).then(publicGames => {
+        res.render('dashboard', { publicGames });
+    });
 });
 
 app.get('/leaderboard', (req,res) => {
