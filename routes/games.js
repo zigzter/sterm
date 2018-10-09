@@ -6,7 +6,6 @@ const knex = require('../db/client')
 router.use(bodyParser.urlencoded({ extended: true }));
 
 router.get('/new', (req,res) => {
-    console.log(req.currentUser);
     res.render('games/new');
 });
 

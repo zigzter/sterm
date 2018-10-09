@@ -1,16 +1,18 @@
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
-const Ttt = require('./games/tictactoe.js');
 const io = require('socket.io')(http);
-const knex = require('./db/client');
 const bodyParser = require('body-parser');
+const pg = require('pg');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')({ 'session': session });
+const knex = require('./db/client');
+const Ttt = require('./games/tictactoe.js');
 
 app.set('view engine', 'ejs');
 
-function authenticate(req,res,next){
-    if(req.session.userId){
+function authenticate(req, res, next) {
+    if (req.session.userId) {
         next();
     } else {
         res.redirect('/');
@@ -18,24 +20,39 @@ function authenticate(req,res,next){
 }
 
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({extended: true}))
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// STORING SESSIONS
+
+const pgPool = new pg.Pool({
+    user: 'ziggy',
+    password: 'yeezy',
+    database: 'sterm',
+});
+
 app.use(session({
+    store: new pgSession({
+        pool: pgPool,
+    }),
     secret: 'bongo cat',
-    resave: true,
+    resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 680000000 }
+    cookie: { secure: false, maxAge: 680000000 },
 }));
 
-app.use(async (req,res,next) => {
+// SET CURRENT USER
+
+app.use(async (req, res, next) => {
     const { userId } = req.session;
     res.locals.currentUser = null;
-    if(userId){
+    if (userId) {
         try {
-            const user = await knex('users').where({id: userId}).first();
+            const user = await knex('users').where({ id: userId }).first();
             req.currentUser = user;
             res.locals.currentUser = user;
             next();
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     } else {
@@ -43,17 +60,19 @@ app.use(async (req,res,next) => {
     }
 });
 
-app.get('/', (req,res) => {
+// ROUTES
+
+app.get('/', (req, res) => {
     res.render('index');
 });
 
-app.get('/dashboard', authenticate, (req,res) => {
-    knex('games').where({ is_public: true }).then(publicGames => {
+app.get('/dashboard', authenticate, (req, res) => {
+    knex('games').where({ is_public: true }).then((publicGames) => {
         res.render('dashboard', { publicGames });
     });
 });
 
-app.get('/leaderboard', (req,res) => {
+app.get('/leaderboard', (req, res) => {
     res.render('leaderboard');
 });
 
@@ -67,37 +86,41 @@ app.use('/games', authenticate, gamesRouter);
 
 const games = {};
 
-io.on('connection', socket => {
-    let room, game;
-    socket.on('join-room', roomId => {
-        room = roomId;
+io.on('connection', (socket) => {
+    let room;
+    let game;
+    socket.on('join-room', (data) => {
+        room = data.roomId;
+        const { userId, username } = data;
         socket.join(room);
-        socket.broadcast.emit('new-user', socket.id);
+        socket.broadcast.emit('new-user', { userId, username });
     });
-    socket.on('start-game', newGame => {
+    socket.on('start-game', (newGame) => {
         const { playerX, playerO } = newGame;
         game = new Ttt(playerX, playerO);
         games[room] = game;
         io.sockets.to(room).emit('game-started', { playerX, playerO });
     });
-    socket.on('move', moveInfo => {
+    socket.on('move', (moveInfo) => {
         game = games[room];
-        const { squareId, playerId } = moveInfo;
-        const playerMove = game.addMove(squareId, playerId);
-        if(playerMove){
-            io.sockets.to(room).emit('valid-move', {squareId, playerMove});
+        const { squareId, username } = moveInfo;
+        const playerMove = game.addMove(squareId, username);
+        const { currentPlayer } = game;
+        if (playerMove) {
+            io.sockets.to(room).emit('valid-move', { squareId, playerMove, currentPlayer });
             const winningUser = game.victoryCheck();
-            if(winningUser){
-                io.sockets.to(room).emit('victory', winningUser);
+            if (winningUser) {
+                const { player, moves } = winningUser;
+                io.sockets.to(room).emit('victory', { player, moves });
             }
         } else {
-            io.sockets.to(room).emit('invalid-move', {squareId, playerMove});
+            io.sockets.to(room).emit('invalid-move', { squareId, playerMove });
         }
     });
-    socket.on('new-message', msgData => {
-        const { msg, playerId } = msgData;
-        io.sockets.to(room).emit('new-message', { msg, playerId });
+    socket.on('new-message', (msgData) => {
+        const { msg, username, roomId } = msgData;
+        io.sockets.to(roomId).emit('new-message', { msg, username });
     });
 });
 
-http.listen(3000);
+http.listen(3000, '0.0.0.0');

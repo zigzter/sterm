@@ -12,10 +12,27 @@
     height: calc(100% / 3);
     text-align: center;
     font-size: 1.1rem;
+    transition: 350ms;
 }
 
 .square:hover {
     background-color: whitesmoke;
+}
+
+.square:nth-of-type(1) {
+    border-top-left-radius: 20%;
+}
+
+.square:nth-of-type(3) {
+    border-top-right-radius: 20%;
+}
+
+.square:nth-of-type(7) {
+    border-bottom-left-radius: 20%;
+}
+
+.square:nth-of-type(9) {
+    border-bottom-right-radius: 20%;
 }
 
 #chatroom {
@@ -35,4 +52,23 @@
 
 #feedback {
     text-align: center;
+    margin-bottom: 10px;
+}
+
+#feedback p {
+    margin-bottom: 0;
+}
+
+.currentplayer {
+    border: 2px solid black;
+    border-radius: 15px;
+    background-color: greenyellow;
+    width: 200px;
+    margin: 0 auto;
+}
+
+.winningsquares {
+    transform: scale(1.2);
+    background-color: greenyellow;
+    border-radius: 20%;
 }

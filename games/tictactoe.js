@@ -1,30 +1,28 @@
-
 module.exports = class TicTacToe {
-    constructor(id1, id2){
+    constructor(id1, id2) {
         this.playerX = id1;
         this.playerO = id2;
         this.currentPlayer = id1;
         this.moves = Array(9);
-        this.wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        this.wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
     }
-    addMove(boardIndex, userId){
-        if(this.currentPlayer === userId && this.moves[boardIndex] === undefined){
-            if(this.currentPlayer === this.playerX){
+    addMove(boardIndex, username){
+        if (this.currentPlayer === username && this.moves[boardIndex] === undefined) {
+            if (this.currentPlayer === this.playerX) {
                 this.moves[boardIndex] = 'x';
                 this.currentPlayer = this.playerO;
                 return 'x';
-            } else if(this.currentPlayer === this.playerO){
+            } else if (this.currentPlayer === this.playerO) {
                 this.moves[boardIndex] = 'o';
                 this.currentPlayer = this.playerX;
                 return 'o';
             }
         } else {
-            // prevent cheating and send warning to user
             return false;
         }
     }
-    victoryCheck(){
-        for(let check of this.wins){
+    victoryCheck() {
+        for (let check of this.wins) {
             let count = 0;
             let move;
             for(let i = 0; i < 3; i += 1){
@@ -38,13 +36,13 @@ module.exports = class TicTacToe {
                     count += 1;
                 }
             }
-            if(count === 3){
-                if(move === 'x'){
-                    return this.playerX;
-                } else if(move === 'o'){
-                    return this.playerO;
+            if (count === 3) {
+                if (move === 'x') {
+                    return { player: this.playerX, moves: check };
+                } else if (move === 'o') {
+                    return { player: this.playerO, moves: check };
                 }
             }
         }
     }
-}
+};
