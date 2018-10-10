@@ -20,19 +20,19 @@
 }
 
 .square:nth-of-type(1) {
-    border-top-left-radius: 20%;
+    border-top-left-radius: 10%;
 }
 
 .square:nth-of-type(3) {
-    border-top-right-radius: 20%;
+    border-top-right-radius: 10%;
 }
 
 .square:nth-of-type(7) {
-    border-bottom-left-radius: 20%;
+    border-bottom-left-radius: 10%;
 }
 
 .square:nth-of-type(9) {
-    border-bottom-right-radius: 20%;
+    border-bottom-right-radius: 10%;
 }
 
 #chatroom {
@@ -57,18 +57,63 @@
 
 #feedback p {
     margin-bottom: 0;
+    font-size: 1.2rem;
 }
 
 .currentplayer {
     border: 2px solid black;
-    border-radius: 15px;
+    border-radius: 10px;
     background-color: greenyellow;
     width: 200px;
     margin: 0 auto;
 }
 
 .winningsquares {
-    transform: scale(1.2);
+    transform: scale(1.1);
     background-color: greenyellow;
-    border-radius: 20%;
+    border-radius: 10%;
+}
+
+#timer p {
+    font-size: 1.7rem;
+}
+
+#cgame {
+    width: 50vh;
+    height: 42vh;
+    margin: 0 auto;
+}
+
+#dropZone {
+    width: 50vh;
+    margin: 0 auto;
+}
+
+.csquare {
+    box-sizing: border-box;
+    background-color: lightgray;
+    border: 2px solid black;
+    width: calc(100% / 7);
+    height: calc(100% / 6);
+    text-align: center;
+    font-size: 1.1rem;
+    transition: 350ms;
+}
+
+.chole {
+    background-color: blue;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+}
+
+.dropChoice {
+    border-radius: 50%;
+    box-sizing: border-box;
+    width: calc(100% / 7);
+    height: 65px;
+}
+
+.dropChoice:hover {
+    background-color: aqua;
 }

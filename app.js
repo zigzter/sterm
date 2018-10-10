@@ -5,7 +5,7 @@ const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
 const pg = require('pg');
 const session = require('express-session');
-const pgSession = require('connect-pg-simple')({ 'session': session });
+const pgSession = require('connect-pg-simple')({ session });
 const knex = require('./db/client');
 const Ttt = require('./games/tictactoe.js');
 
@@ -67,7 +67,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/dashboard', authenticate, (req, res) => {
-    knex('games').where({ is_public: true }).then((publicGames) => {
+    knex('games').where({ is_public: true }).whereNull('winner_id').then((publicGames) => {
         res.render('dashboard', { publicGames });
     });
 });
@@ -89,6 +89,7 @@ const games = {};
 io.on('connection', (socket) => {
     let room;
     let game;
+    let gameId;
     socket.on('join-room', (data) => {
         room = data.roomId;
         const { userId, username } = data;
@@ -100,21 +101,30 @@ io.on('connection', (socket) => {
         game = new Ttt(playerX, playerO);
         games[room] = game;
         io.sockets.to(room).emit('game-started', { playerX, playerO });
+        knex('games').where({ room_id: room }).then((gameEntry) => {
+            gameId = gameEntry[0].id;
+            // [{id: gameId}] = gameEntry;
+        });
     });
     socket.on('move', (moveInfo) => {
         game = games[room];
-        const { squareId, username } = moveInfo;
+        const { squareId, username, userId } = moveInfo;
         const playerMove = game.addMove(squareId, username);
         const { currentPlayer } = game;
         if (playerMove) {
+            knex('moves').insert({
+                game_id: gameId,
+                user_id: userId,
+                move: squareId,
+            }).then();
             io.sockets.to(room).emit('valid-move', { squareId, playerMove, currentPlayer });
             const winningUser = game.victoryCheck();
             if (winningUser) {
                 const { player, moves } = winningUser;
                 io.sockets.to(room).emit('victory', { player, moves });
+                knex('games').where({ room_id: room }).update({ winner_id: userId }).then();
+                knex('users').where({ id: userId }).increment('wins', 1).then();
             }
-        } else {
-            io.sockets.to(room).emit('invalid-move', { squareId, playerMove });
         }
     });
     socket.on('new-message', (msgData) => {

@@ -8,7 +8,7 @@
       </div>
       <div class="modal-body">
         <div class="input-group mb-3">
-          <input id="roomLink" type="text" class="form-control" value="localhost:3000/games/<%= room_id %>" readonly>
+          <input id="roomLink" type="text" class="form-control" value="localhost:3000/games/<%= roomId %>" readonly>
           <div class="input-group-append">
             <button id="shareLink" class="btn btn-outline-secondary" type="button" data-toggle="popover" data-placement="top" data-content="Link copied!">Copy</button>
           </div>
@@ -49,7 +49,7 @@
 </div>
 
 <div id="feedback">
-  <div id="timer"><p>0</p></div>
+  <div id="timer"><p></p></div>
 </div>
 <div class="row" id="game"></div>
 

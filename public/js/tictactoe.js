@@ -1,15 +1,14 @@
-'use strict';
+'use strict'; // eslint-disable-line
 
-const shareLink       = $('#shareLink');
-const chatroom        = $('#chatroom');
-const message         = $('#message');
-const roomUrl         = location.href;
-const roomId          = location.pathname.split('/')[2];
-const socket          = io({ transports: ['websocket'], upgrade: false });
+const shareLink = $('#shareLink');
+const chatroom = $('#chatroom');
+const message = $('#message');
+const roomId = location.pathname.split('/')[2];
+const socket = io({ transports: ['websocket'], upgrade: false });
 let secondsElapsed = 0;
-let userId;
 let username;
 let timerId;
+let userId;
 
 socket.on('connect', () => {
     fetch('/users/vars').then(resp => resp.json())
@@ -47,7 +46,7 @@ shareLink.click(() => {
 
 function timer() {
     secondsElapsed += 1;
-    $('#timer p').text(secondsElapsed);
+    $('#timer p').text(`Turn Timer: ${ secondsElapsed }`);
 }
 function startTimer() {
     clearInterval(timerId);
@@ -67,11 +66,10 @@ socket.on('game-started', (players) => {
     $(`#${ playerX }`).addClass('currentplayer');
     $('.square').click((event) => {
         const squareId = event.target.id.slice(1);
-        socket.emit('move', { squareId, username });
+        socket.emit('move', { squareId, username, userId });
     });
     $('#waiting').modal('hide');
     startTimer();
-    $(`#${ playerX }`).append(secondsElapsed);
 });
 
 socket.on('valid-move', (moveObj) => {
@@ -82,9 +80,6 @@ socket.on('valid-move', (moveObj) => {
     }
     $('#feedback p').slice(1).toggleClass('currentplayer');
     startTimer();
-});
-
-socket.on('invalid-move', () => {
 });
 
 socket.on('victory', (data) => {
