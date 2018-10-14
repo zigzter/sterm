@@ -6,7 +6,9 @@ const bodyParser = require('body-parser');
 const pg = require('pg');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')({ session });
+const methodOverride = require('method-override');
 const knex = require('./db/client');
+const Game = require('./models/game');
 const Ttt = require('./games/tictactoe.js');
 
 app.set('view engine', 'ejs');
@@ -22,6 +24,16 @@ function authenticate(req, res, next) {
 app.use(express.static('public'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(
+    methodOverride((req, res) => {
+        if (typeof req.body === 'object' && req.body._method) {
+            const method = req.body._method;
+            delete req.body._method;
+            return method;
+        }
+    }),
+);
 
 // STORING SESSIONS
 
@@ -66,63 +78,54 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
-app.get('/dashboard', authenticate, (req, res) => {
-    knex('games').where({ is_public: true }).whereNull('winner_id').then((publicGames) => {
-        res.render('dashboard', { publicGames });
-    });
+app.get('/dashboard', authenticate, async (req, res) => {
+    const publicGames = await Game.findPublicGames();
+    res.render('dashboard', { publicGames });
 });
 
-app.get('/leaderboard', (req, res) => {
-    res.render('leaderboard');
+app.get('/leaderboard', async (req, res) => {
+    const users = await knex('users').orderBy('wins', 'desc');
+    res.render('leaderboard', { users });
 });
 
-const gamesRouter = require('./routes/games');
-const sessionRouter = require('./routes/sessions');
-const userRouter = require('./routes/users');
+const indexRouter = require('./routes');
 
-app.use('/users', userRouter);
-app.use('/sessions', sessionRouter);
-app.use('/games', authenticate, gamesRouter);
-
-const games = {};
+app.use('/', indexRouter);
 
 io.on('connection', (socket) => {
-    let room;
     let game;
-    let gameId;
     socket.on('join-room', (data) => {
-        room = data.roomId;
-        const { userId, username } = data;
-        socket.join(room);
-        socket.broadcast.emit('new-user', { userId, username });
+        const { roomId } = data;
+        socket.join(roomId);
     });
-    socket.on('start-game', (newGame) => {
-        const { playerX, playerO } = newGame;
-        game = new Ttt(playerX, playerO);
-        games[room] = game;
-        io.sockets.to(room).emit('game-started', { playerX, playerO });
-        knex('games').where({ room_id: room }).then((gameEntry) => {
-            gameId = gameEntry[0].id;
-            // [{id: gameId}] = gameEntry;
-        });
+    socket.on('game-init', async (data) => {
+        const { roomId, userId } = data;
+        const gameData = await Game.fetchGame(roomId);
+        game = new Ttt(gameData);
+        await game.fetchMoves();
+        await game.init();
+        if (game.player1 !== userId && !game.player2) {
+            game.player2 = userId;
+            game.setPlayer2(userId);
+        }
+        const { player1, player2 } = game;
+        if (player2) {
+            io.sockets.to(roomId).emit('game-started', { player1, player2 });
+        } else {
+            io.sockets.to(roomId).emit('waiting');
+        }
     });
-    socket.on('move', (moveInfo) => {
-        game = games[room];
-        const { squareId, username, userId } = moveInfo;
-        const playerMove = game.addMove(squareId, username);
-        const { currentPlayer } = game;
-        if (playerMove) {
-            knex('moves').insert({
-                game_id: gameId,
-                user_id: userId,
-                move: squareId,
-            }).then();
-            io.sockets.to(room).emit('valid-move', { squareId, playerMove, currentPlayer });
+    socket.on('move', async (moveData) => {
+        const { squareId, username, userId, roomId } = moveData;
+        const { player1, player2 } = game;
+        const validMove = await game.addMove(squareId, userId);
+        if (validMove) {
+            io.sockets.to(roomId).emit('valid-move', { squareId, moveUser: userId, player1, player2 });
             const winningUser = game.victoryCheck();
             if (winningUser) {
                 const { player, moves } = winningUser;
-                io.sockets.to(room).emit('victory', { player, moves });
-                knex('games').where({ room_id: room }).update({ winner_id: userId }).then();
+                io.sockets.to(roomId).emit('victory', { player, moves });
+                knex('games').where({ room_id: roomId }).update({ winner_id: userId }).then();
                 knex('users').where({ id: userId }).increment('wins', 1).then();
             }
         }

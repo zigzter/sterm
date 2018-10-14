@@ -5,6 +5,7 @@ const chatroom = $('#chatroom');
 const message = $('#message');
 const roomId = location.pathname.split('/')[2];
 const socket = io({ transports: ['websocket'], upgrade: false });
+// const socket = io();
 let secondsElapsed = 0;
 let username;
 let timerId;
@@ -15,7 +16,7 @@ socket.on('connect', () => {
         .then((data) => {
             ({ username, userId } = data);
             socket.emit('join-room', { roomId, userId, username });
-            socket.emit('new-user', { username, userId });
+            socket.emit('game-init', { roomId, userId, username });
         });
 });
 
@@ -26,10 +27,14 @@ for (let i = 0; i < 9; i += 1) {
     $('#game').append(square);
 }
 
-$('#waiting').modal('show');
+// WAITING FOR PLAYER 2 MODAL =================================================
+
+socket.on('waiting', () => {
+    $('#waiting').modal('show');
+});
 
 $('#makePublic').click(() => {
-    fetch(`/games/${ roomId }`, { method: 'POST' });
+    fetch(`/games/${ roomId }`, { method: 'PATCH' });
     $('#makePublic').prop('disabled', true);
     $('#makePublic').text('Game is public');
 });
@@ -44,6 +49,8 @@ shareLink.click(() => {
     }, 700);
 });
 
+// TIMER ======================================================================
+
 function timer() {
     secondsElapsed += 1;
     $('#timer p').text(`Turn Timer: ${ secondsElapsed }`);
@@ -56,27 +63,24 @@ function startTimer() {
 
 // GAME =======================================================================
 
-socket.on('new-user', (user) => {
-    socket.emit('start-game', { playerX: username, playerO: user.username });
-});
-
 socket.on('game-started', (players) => {
-    const { playerX, playerO } = players;
-    $('#feedback').append(`<p id="${ playerX }">${ playerX }</p><p id=${ playerO }>${ playerO }</p>`);
-    $(`#${ playerX }`).addClass('currentplayer');
+    const { player1, player2 } = players;
+    $('#feedback').append(`<p id="${ player1 }">${ player1 }</p><p id=${ player2 }>${ player2 }</p>`);
+    $(`#${ player1 }`).addClass('currentplayer');
     $('.square').click((event) => {
         const squareId = event.target.id.slice(1);
-        socket.emit('move', { squareId, username, userId });
+        socket.emit('move', { squareId, username, userId, roomId });
     });
     $('#waiting').modal('hide');
     startTimer();
 });
 
-socket.on('valid-move', (moveObj) => {
-    if (moveObj.playerMove === 'x') {
-        $(`#s${ moveObj.squareId }`).html('<i class="fas fa-times fa-7x"></i>');
-    } else if (moveObj.playerMove === 'o') {
-        $(`#s${ moveObj.squareId }`).html('<i class="fas fa-dot-circle fa-6x"></i>');
+socket.on('valid-move', (moveData) => {
+    const { squareId, moveUser, player1, player2 } = moveData;
+    if (moveUser === player1) {
+        $(`#s${ squareId }`).html('<i class="fas fa-times fa-7x"></i>');
+    } else if (moveUser === player2) {
+        $(`#s${ squareId }`).html('<i class="fas fa-dot-circle fa-6x"></i>');
     }
     $('#feedback p').slice(1).toggleClass('currentplayer');
     startTimer();
@@ -84,7 +88,7 @@ socket.on('valid-move', (moveObj) => {
 
 socket.on('victory', (data) => {
     const { player, moves } = data;
-    if (username === player) {
+    if (userId === player) {
         $('#victory').modal('show');
     } else {
         $('#loss').modal('show');

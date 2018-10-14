@@ -1,28 +1,32 @@
+const Game = require('../models/game');
+const knex = require('../db/client');
 
-module.exports = class TicTacToe {
-    constructor(id1, id2) {
-        this.playerX = id1;
-        this.playerO = id2;
-        this.currentPlayer = id1;
+module.exports = class TicTacToe extends Game {
+    constructor({ id, room_id, player1, player2, is_public, game_type, winner_id }) {
+        super({ id, room_id, player1, player2, is_public, game_type, winner_id });
         this.moves = Array(9);
-        this.wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+        this.wins = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
     }
 
-    addMove(boardIndex, username) {
-        if (this.currentPlayer === username && this.moves[boardIndex] === undefined) {
-            if (this.currentPlayer === this.playerX) {
-                this.moves[boardIndex] = 'x';
-                this.currentPlayer = this.playerO;
-                return 'x';
-            }
-            if (this.currentPlayer === this.playerO) {
-                this.moves[boardIndex] = 'o';
-                this.currentPlayer = this.playerX;
-                return 'o';
-            }
-        } else {
-            return false;
+    init() {
+        this.dbMoves.map((move) => {
+            this.moves[move.move] = move.user_id;
+        });
+        return this;
+    }
+
+    async addMove(boardIndex, userId) {
+        const lastMove = await knex('moves').orderBy('created_at', 'desc').first();
+        let lastUser;
+        if (lastMove) {
+            lastUser = lastMove.user_id;
         }
+        if (this.moves[boardIndex] === undefined && userId !== lastUser) {
+            this.moves[boardIndex] = userId;
+            await Game.saveMove(this.id, userId, boardIndex);
+            return boardIndex;
+        }
+        return false;
     }
 
     victoryCheck() {
@@ -42,12 +46,7 @@ module.exports = class TicTacToe {
                 }
             }
             if (count === 3) {
-                if (move === 'x') {
-                    winner = { player: this.playerX, moves: check };
-                }
-                if (move === 'o') {
-                    winner = { player: this.playerO, moves: check };
-                }
+                winner = { player: move, moves: check };
             }
         });
         return winner;

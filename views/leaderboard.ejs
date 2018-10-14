@@ -11,6 +11,7 @@
         </li>
         </ul>
     </div>
+
     <div class="card-body">
         <table class="table">
             <thead>
@@ -21,21 +22,13 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                <th scope="row">1</th>
-                <td>Ziggy</td>
-                <td>7</td>
-                </tr>
-                <tr>
-                <th scope="row">2</th>
-                <td>Bojack</td>
-                <td>5</td>
-                </tr>
-                <tr>
-                <th scope="row">3</th>
-                <td>Todd</td>
-                <td>2</td>
-                </tr>
+                <% users.map((user, i) => { %>
+                    <tr>
+                        <th scope="row"><%= i + 1 %></th>
+                        <td><%= user.username %></td>
+                        <td><%= user.wins %></td>
+                    </tr>
+                <% }); %>
             </tbody>
         </table>
     </div>
