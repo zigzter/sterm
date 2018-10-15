@@ -64,8 +64,8 @@ function startTimer() {
 // GAME =======================================================================
 
 socket.on('game-started', (players) => {
-    const { player1, player2 } = players;
-    $('#feedback').append(`<p id="${ player1 }">${ player1 }</p><p id=${ player2 }>${ player2 }</p>`);
+    const { player1, player2, p1username, p2username } = players;
+    $('#feedback').append(`<p id="${ player1 }">${ p1username }</p><p id=${ player2 }>${ p2username }</p>`);
     $(`#${ player1 }`).addClass('currentplayer');
     $('.square').click((event) => {
         const squareId = event.target.id.slice(1);

@@ -7,8 +7,8 @@ const pg = require('pg');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')({ session });
 const methodOverride = require('method-override');
-const knex = require('./db/client');
 const Game = require('./models/game');
+const User = require('./models/user');
 const Ttt = require('./games/tictactoe.js');
 
 app.set('view engine', 'ejs');
@@ -43,7 +43,7 @@ const pgPool = new pg.Pool({
     database: 'sterm',
 });
 
-app.use(session({
+const sessionMiddleware = session({
     store: new pgSession({
         pool: pgPool,
     }),
@@ -51,7 +51,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false, maxAge: 680000000 },
-}));
+});
+
+app.use(sessionMiddleware);
 
 // SET CURRENT USER
 
@@ -60,7 +62,7 @@ app.use(async (req, res, next) => {
     res.locals.currentUser = null;
     if (userId) {
         try {
-            const user = await knex('users').where({ id: userId }).first();
+            const user = await User.find(userId);
             req.currentUser = user;
             res.locals.currentUser = user;
             next();
@@ -80,19 +82,28 @@ app.get('/', (req, res) => {
 
 app.get('/dashboard', authenticate, async (req, res) => {
     const publicGames = await Game.findPublicGames();
-    res.render('dashboard', { publicGames });
-});
-
-app.get('/leaderboard', async (req, res) => {
-    const users = await knex('users').orderBy('wins', 'desc');
-    res.render('leaderboard', { users });
+    const users = await User.getUsers();
+    res.render('dashboard', { publicGames, users });
 });
 
 const indexRouter = require('./routes');
 
 app.use('/', indexRouter);
 
+io.use((socket, next) => {
+    sessionMiddleware(socket.request, {}, next);
+});
+
+io.use(async (socket, next) => {
+    const { userId } = socket.request.session;
+    if (userId) {
+        socket.currentUser = await User.find(userId);
+    }
+    next();
+});
+
 io.on('connection', (socket) => {
+    console.log(`${ socket.currentUser.username } connected`);
     let game;
     socket.on('join-room', (data) => {
         const { roomId } = data;
@@ -110,13 +121,15 @@ io.on('connection', (socket) => {
         }
         const { player1, player2 } = game;
         if (player2) {
-            io.sockets.to(roomId).emit('game-started', { player1, player2 });
+            const p1username = await User.getUsername(player1);
+            const p2username = await User.getUsername(player2);
+            io.sockets.to(roomId).emit('game-started', { player1, player2, p1username, p2username });
         } else {
             io.sockets.to(roomId).emit('waiting');
         }
     });
     socket.on('move', async (moveData) => {
-        const { squareId, username, userId, roomId } = moveData;
+        const { squareId, userId, roomId } = moveData;
         const { player1, player2 } = game;
         const validMove = await game.addMove(squareId, userId);
         if (validMove) {
@@ -125,8 +138,8 @@ io.on('connection', (socket) => {
             if (winningUser) {
                 const { player, moves } = winningUser;
                 io.sockets.to(roomId).emit('victory', { player, moves });
-                knex('games').where({ room_id: roomId }).update({ winner_id: userId }).then();
-                knex('users').where({ id: userId }).increment('wins', 1).then();
+                Game.setWinner(roomId, userId);
+                User.addWin(userId);
             }
         }
     });

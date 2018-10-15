@@ -32,6 +32,14 @@ module.exports = class Game {
         return this;
     }
 
+    static async lastMove(game_id) {
+        return knex('moves').where({ game_id }).orderBy('created_at', 'desc').first();
+    }
+
+    static async setWinner(room_id, winner_id) {
+        return knex('games').where({ room_id }).update({ winner_id }).then();
+    }
+
     async fetchMoves() {
         this.dbMoves = await knex('moves').where({ game_id: this.id });
         return this;

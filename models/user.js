@@ -12,8 +12,12 @@ module.exports = class User {
     }
 
     static async find(id) {
-        const userRaw = await knex('users').where({ id }).first();
-        return new User(userRaw);
+        return knex('users').where({ id }).first();
+    }
+
+    static async getUsername(id) {
+        const user = await knex('users').where({ id }).first();
+        return user.username;
     }
 
     static async findByUsername(username) {
@@ -21,8 +25,12 @@ module.exports = class User {
         return new User(userRaw);
     }
 
-    addWin() {
-        knex('users').where({ id: this.id }).increment('wins', 1).then();
+    static async getUsers() {
+        return knex('users').orderBy('wins', 'desc').limit(5);
+    }
+
+    static async addWin(id) {
+        return knex('users').where({ id }).increment('wins', 1).then();
     }
 
     async save() {

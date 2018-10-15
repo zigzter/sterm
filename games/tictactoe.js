@@ -1,5 +1,4 @@
 const Game = require('../models/game');
-const knex = require('../db/client');
 
 module.exports = class TicTacToe extends Game {
     constructor({ id, room_id, player1, player2, is_public, game_type, winner_id }) {
@@ -16,8 +15,8 @@ module.exports = class TicTacToe extends Game {
     }
 
     async addMove(boardIndex, userId) {
-        const lastMove = await knex('moves').orderBy('created_at', 'desc').first();
-        let lastUser;
+        const lastMove = await Game.lastMove(this.id);
+        let lastUser = this.player2;
         if (lastMove) {
             lastUser = lastMove.user_id;
         }
