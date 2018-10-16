@@ -7,6 +7,7 @@ const pg = require('pg');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')({ session });
 const methodOverride = require('method-override');
+
 const Game = require('./models/game');
 const User = require('./models/user');
 const Ttt = require('./games/tictactoe.js');
@@ -122,7 +123,9 @@ io.on('connection', (socket) => {
         if (player2) {
             const p1username = await User.getUsername(player1);
             const p2username = await User.getUsername(player2);
-            io.sockets.to(roomId).emit('game-started', { player1, player2, p1username, p2username });
+            io.sockets.to(roomId).emit('game-started', {
+                player1, player2, p1username, p2username,
+            });
         } else {
             io.sockets.to(roomId).emit('waiting');
         }
@@ -132,15 +135,19 @@ io.on('connection', (socket) => {
         const { player1, player2 } = game;
         const validMove = await game.addMove(squareId, userId);
         if (validMove) {
-            io.sockets.to(roomId).emit('valid-move', { squareId, moveUser: userId, player1, player2 });
+            io.sockets.to(roomId).emit('valid-move', {
+                squareId, moveUser: userId, player1, player2,
+            });
             const winningUser = await game.victoryCheck();
-            if (winningUser === 'draw') {
-                io.sockets.to(roomId).emit('draw');                
-            } else if (winningUser) {
+            if (winningUser) {
                 const { player, moves } = winningUser;
-                io.sockets.to(roomId).emit('victory', { player, moves });
-                Game.setWinner(roomId, userId);
-                User.addWin(userId);
+                io.sockets.to(roomId).emit('game-over', { player, moves });
+                if (player !== 'draw') {
+                    Game.setWinner(roomId, userId);
+                    User.addWin(userId);
+                } else {
+                    Game.setWinner(roomId, 12);
+                }
             }
         }
     });

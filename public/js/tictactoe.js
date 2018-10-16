@@ -5,7 +5,6 @@ const chatroom = $('#chatroom');
 const message = $('#message');
 const roomId = location.pathname.split('/')[2];
 const socket = io({ transports: ['websocket'], upgrade: false });
-// const socket = io();
 let secondsElapsed = 0;
 let username;
 let timerId;
@@ -86,21 +85,20 @@ socket.on('valid-move', (moveData) => {
     startTimer();
 });
 
-socket.on('victory', (data) => {
+socket.on('game-over', (data) => {
     const { player, moves } = data;
+    $('#gameOver').modal('show');
     if (userId === player) {
-        $('#victory').modal('show');
+        $('#winner').text('You win!');
+    } else if (player === 'draw') {
+        $('#winner').text('Nobody wins!');
     } else {
-        $('#loss').modal('show');
+        $('#winner').text('You lose!');
     }
     moves.map(index => $(`#s${ index }`).addClass('winningsquares'));
     $('#feedback p').removeClass('currentplayer');
     clearInterval(timerId);
     $('.square').off();
-});
-
-socket.on('draw', () => {
-    alert('u suck');
 });
 
 // CHAT =======================================================================

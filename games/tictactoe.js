@@ -44,7 +44,7 @@ module.exports = class TicTacToe extends Game {
         });
         const moveCount = await this.movesCount();
         if (moveCount === 9) {
-            winner = 'draw';
+            winner = { player: 'draw' };
         }
         return winner;
     }
