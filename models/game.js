@@ -42,7 +42,14 @@ module.exports = class Game {
 
     async fetchMoves() {
         this.dbMoves = await knex('moves').where({ game_id: this.id });
-        return this;
+        this.dbMoves.map((move) => {
+            this.moves[move.move] = move.user_id;
+        });
+    }
+
+    async movesCount() {
+        const moves = await knex('moves').where({ game_id: this.id });
+        return moves.length;
     }
 
     async setPlayer2(player2) {

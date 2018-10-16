@@ -65,10 +65,10 @@ function startTimer() {
 
 socket.on('game-started', (players) => {
     const { player1, player2, p1username, p2username } = players;
-    $('#feedback').append(`<p id="${ player1 }">${ p1username }</p><p id=${ player2 }>${ p2username }</p>`);
+    $('#feedback').append(`<p id="${ player1 }">${ p1username }: X</p><p id=${ player2 }>${ p2username }: O</p>`);
     $(`#${ player1 }`).addClass('currentplayer');
     $('.square').click((event) => {
-        const squareId = event.target.id.slice(1);
+        const squareId = event.currentTarget.id.slice(1);
         socket.emit('move', { squareId, username, userId, roomId });
     });
     $('#waiting').modal('hide');
@@ -97,6 +97,10 @@ socket.on('victory', (data) => {
     $('#feedback p').removeClass('currentplayer');
     clearInterval(timerId);
     $('.square').off();
+});
+
+socket.on('draw', () => {
+    alert('u suck');
 });
 
 // CHAT =======================================================================

@@ -7,19 +7,13 @@ module.exports = class TicTacToe extends Game {
         this.wins = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
     }
 
-    init() {
-        this.dbMoves.map((move) => {
-            this.moves[move.move] = move.user_id;
-        });
-        return this;
-    }
-
     async addMove(boardIndex, userId) {
         const lastMove = await Game.lastMove(this.id);
         let lastUser = this.player2;
         if (lastMove) {
             lastUser = lastMove.user_id;
         }
+        await this.fetchMoves();
         if (this.moves[boardIndex] === undefined && userId !== lastUser) {
             this.moves[boardIndex] = userId;
             await Game.saveMove(this.id, userId, boardIndex);
@@ -28,7 +22,7 @@ module.exports = class TicTacToe extends Game {
         return false;
     }
 
-    victoryCheck() {
+    async victoryCheck() {
         let winner;
         this.wins.map((check) => {
             let count = 0;
@@ -48,6 +42,10 @@ module.exports = class TicTacToe extends Game {
                 winner = { player: move, moves: check };
             }
         });
+        const moveCount = await this.movesCount();
+        if (moveCount === 9) {
+            winner = 'draw';
+        }
         return winner;
     }
 };

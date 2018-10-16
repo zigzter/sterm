@@ -114,7 +114,6 @@ io.on('connection', (socket) => {
         const gameData = await Game.fetchGame(roomId);
         game = new Ttt(gameData);
         await game.fetchMoves();
-        await game.init();
         if (game.player1 !== userId && !game.player2) {
             game.player2 = userId;
             game.setPlayer2(userId);
@@ -134,8 +133,10 @@ io.on('connection', (socket) => {
         const validMove = await game.addMove(squareId, userId);
         if (validMove) {
             io.sockets.to(roomId).emit('valid-move', { squareId, moveUser: userId, player1, player2 });
-            const winningUser = game.victoryCheck();
-            if (winningUser) {
+            const winningUser = await game.victoryCheck();
+            if (winningUser === 'draw') {
+                io.sockets.to(roomId).emit('draw');                
+            } else if (winningUser) {
                 const { player, moves } = winningUser;
                 io.sockets.to(roomId).emit('victory', { player, moves });
                 Game.setWinner(roomId, userId);
