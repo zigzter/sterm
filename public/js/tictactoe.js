@@ -63,6 +63,7 @@ function startTimer() {
 // GAME =======================================================================
 
 socket.on('game-started', (players) => {
+    console.log('game started');
     const { player1, player2, p1username, p2username } = players;
     $('#feedback').append(`<p id="${ player1 }">${ p1username }: X</p><p id=${ player2 }>${ p2username }: O</p>`);
     $(`#${ player1 }`).addClass('currentplayer');

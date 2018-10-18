@@ -1,3 +1,7 @@
+.container {
+    max-width: 540px;
+}
+
 #game {
     width: 50vh;
     height: 50vh;
@@ -78,15 +82,13 @@
     font-size: 1.7rem;
 }
 
-#cgame {
-    width: 50vh;
-    height: 42vh;
+#dropZone {
+    width: 100%;
     margin: 0 auto;
 }
 
-#dropZone {
-    width: 50vh;
-    margin: 0 auto;
+.crow {
+    width: 100%;
 }
 
 .csquare {
@@ -94,26 +96,29 @@
     background-color: lightgray;
     border: 2px solid black;
     width: calc(100% / 7);
-    height: calc(100% / 6);
+    height: 70px;
     text-align: center;
     font-size: 1.1rem;
-    transition: 350ms;
-}
-
-.chole {
-    background-color: blue;
-    border-radius: 50%;
-    width: 55px;
-    height: 55px;
 }
 
 .dropChoice {
-    border-radius: 50%;
     box-sizing: border-box;
     width: calc(100% / 7);
     height: 65px;
 }
 
-.dropChoice:hover {
-    background-color: aqua;
+.dropChoice i {
+    visibility: hidden;
+}
+
+.dropChoice:hover i {
+    visibility: visible;
+}
+
+.red {
+    color: red;
+}
+
+.blue {
+    color: blue;
 }

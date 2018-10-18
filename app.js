@@ -10,7 +10,8 @@ const methodOverride = require('method-override');
 
 const Game = require('./models/game');
 const User = require('./models/user');
-const Ttt = require('./games/tictactoe.js');
+const Ttt = require('./games/tictactoe');
+const C4 = require('./games/connect4');
 
 app.set('view engine', 'ejs');
 
@@ -113,7 +114,11 @@ io.on('connection', (socket) => {
     socket.on('game-init', async (data) => {
         const { roomId, userId } = data;
         const gameData = await Game.fetchGame(roomId);
-        game = new Ttt(gameData);
+        if (gameData.game_type === 'tictactoe') {
+            game = new Ttt(gameData);
+        } else if (gameData.game_type === 'connect4') {
+            game = new C4(gameData);
+        }
         await game.fetchMoves();
         if (game.player1 !== userId && !game.player2) {
             game.player2 = userId;
@@ -136,7 +141,7 @@ io.on('connection', (socket) => {
         const validMove = await game.addMove(squareId, userId);
         if (validMove) {
             io.sockets.to(roomId).emit('valid-move', {
-                squareId, moveUser: userId, player1, player2,
+                squareId, moveUser: userId, player1, player2, validMove,
             });
             const winningUser = await game.victoryCheck();
             if (winningUser) {
@@ -157,4 +162,4 @@ io.on('connection', (socket) => {
     });
 });
 
-http.listen(3000, '0.0.0.0');
+http.listen(3000);

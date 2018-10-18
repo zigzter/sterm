@@ -20,9 +20,10 @@ module.exports = {
         const publicGames = await Game.findPublicGames();
         res.json(publicGames);
     },
-    show(req, res) {
+    async show(req, res) {
         const roomId = req.params.id;
-        res.render('games/show', { roomId });
+        const { game_type } = await Game.fetchGame(roomId);
+        res.render('games/show', { roomId, game_type });
     },
     async update(req) {
         await Game.setPublic(req.params.id);
