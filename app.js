@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const pg = require('pg');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')({ session });
+const helmet = require('helmet');
 const methodOverride = require('method-override');
 
 const Game = require('./models/game');
@@ -15,20 +16,12 @@ const C4 = require('./games/connect4');
 
 app.set('view engine', 'ejs');
 
-function authenticate(req, res, next) {
-    if (req.session.userId) {
-        next();
-    } else {
-        res.redirect('/');
-    }
-}
-
+app.use(helmet());
+app.use(helmet.xssFilter());
 app.use(express.static('public'));
-
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(
-    methodOverride((req, res) => {
+    methodOverride((req) => {
         if (typeof req.body === 'object' && req.body._method) {
             const method = req.body._method;
             delete req.body._method;
@@ -78,19 +71,11 @@ app.use(async (req, res, next) => {
 
 // ROUTES
 
-app.get('/', (req, res) => {
-    res.render('index');
-});
-
-app.get('/dashboard', authenticate, async (req, res) => {
-    const publicGames = await Game.findPublicGames();
-    const users = await User.getUsers();
-    res.render('dashboard', { publicGames, users });
-});
-
 const indexRouter = require('./routes');
 
 app.use('/', indexRouter);
+
+// SOCKETS
 
 io.use((socket, next) => {
     sessionMiddleware(socket.request, {}, next);

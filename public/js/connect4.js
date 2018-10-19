@@ -79,7 +79,6 @@ function startTimer() {
 // GAME =======================================================================
 
 socket.on('game-started', (players) => {
-    console.log('game started');
     const { player1, player2, p1username, p2username } = players;
     $('#feedback').append(`<p id="${ player1 }">${ p1username }: Red</p><p id=${ player2 }>${ p2username }: Blue</p>`);
     $(`#${ player1 }`).addClass('currentplayer');
@@ -116,9 +115,7 @@ socket.on('game-over', (data) => {
     } else {
         $('#winner').text('You lose!');
     }
-    console.log(moves);
     moves.forEach((loc) => {
-        console.log(loc[0], loc[1]);
         $(`#r${ loc[0] } #c${ loc[1] }`).addClass('c4wins');
     });
     $('#feedback p').removeClass('currentplayer');
