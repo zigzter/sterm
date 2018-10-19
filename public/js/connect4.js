@@ -116,6 +116,11 @@ socket.on('game-over', (data) => {
     } else {
         $('#winner').text('You lose!');
     }
+    console.log(moves);
+    moves.forEach((loc) => {
+        console.log(loc[0], loc[1]);
+        $(`#r${ loc[0] } #c${ loc[1] }`).addClass('c4wins');
+    });
     $('#feedback p').removeClass('currentplayer');
     clearInterval(timerId);
     $('.dropChoice').off();

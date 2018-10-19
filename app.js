@@ -125,13 +125,13 @@ io.on('connection', (socket) => {
             game.setPlayer2(userId);
         }
         const { player1, player2 } = game;
-        if (player2) {
+        if (player2 && player2 === userId) {
             const p1username = await User.getUsername(player1);
             const p2username = await User.getUsername(player2);
             io.sockets.to(roomId).emit('game-started', {
                 player1, player2, p1username, p2username,
             });
-        } else {
+        } else if (!player2) {
             io.sockets.to(roomId).emit('waiting');
         }
     });

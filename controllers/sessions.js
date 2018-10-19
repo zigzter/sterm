@@ -12,7 +12,7 @@ module.exports = {
                 req.session.userId = user.id;
                 res.redirect('/dashboard');
             } else {
-                res.render('session/new');
+                res.render('sessions/new');
             }
         } catch (err) {
             next(err);

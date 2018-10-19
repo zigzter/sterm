@@ -50,28 +50,40 @@ module.exports = class Connect4 extends Game {
         for (let r = 0; r < 3; r += 1) {
             for (let c = 0; c < 7; c += 1) {
                 if (this.chkLine(bd[r][c], bd[r+1][c], bd[r+2][c], bd[r+3][c])) {
-                    winner = { player: bd[r][c] };
+                    winner = {
+                        player: bd[r][c],
+                        moves: [[r,c], [r+1,c], [r+2,c], [r+3,c]],
+                    };
                 }
             }
         }
         for (let r = 0; r < 6; r += 1) {
             for (let c = 0; c < 4; c += 1) {
                 if (this.chkLine(bd[r][c], bd[r][c+1], bd[r][c+2], bd[r][c+3])) {
-                    winner = { player: bd[r][c] };
+                    winner = {
+                        player: bd[r][c],
+                        moves: [[r,c], [r,c+1], [r,c+2], [r,c+3]],
+                    };
                 }
             }
         }
         for (let r = 0; r < 3; r += 1) {
             for (let c = 0; c < 4; c += 1) {
                 if (this.chkLine(bd[r][c], bd[r+1][c+1], bd[r+2][c+2], bd[r+3][c+3])) {
-                    winner = { player: bd[r][c] };
+                    winner = {
+                        player: bd[r][c],
+                        moves: [[r,c], [r+1,c+1], [r+2,c+2], [r+3,c+3]],
+                    };
                 }
             }
         }
         for (let r = 3; r < 6; r += 1) {
             for (let c = 0; c < 4; c += 1) {
                 if (this.chkLine(bd[r][c], bd[r-1][c+1], bd[r-2][c+2], bd[r-3][c+3])) {
-                    winner = { player: bd[r][c] };
+                    winner = {
+                        player: bd[r][c],
+                        moves: [[r,c], [r-1,c+1], [r-2,c+2], [r-3,c+3]],
+                    };
                 }
             }
         }
