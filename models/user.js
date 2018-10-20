@@ -21,7 +21,10 @@ module.exports = class User {
     }
 
     static async findByUsername(username) {
-        return knex('users').where({ username }).first();
+        const userRaw = await knex('users').where({ username }).first();
+        if (userRaw) {
+            return new User(userRaw);
+        }
     }
 
     static async getUsers() {

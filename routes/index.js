@@ -16,7 +16,7 @@ function auth(req, res, next) {
 }
 
 router.get('/', homeController.index);
-router.get('/dashboard', homeController.dashboard);
+router.get('/dashboard', auth, homeController.dashboard);
 
 router.get('/games/new', auth, gamesController.new);
 router.post('/games', auth, gamesController.create);

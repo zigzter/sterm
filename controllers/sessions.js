@@ -8,7 +8,8 @@ module.exports = {
         const { username, password } = req.body;
         try {
             const user = await User.findByUsername(username);
-            if (user && user.authenticate(password)) {
+            console.log('user log 2:', user);
+            if (user && await user.authenticate(password)) {
                 req.session.userId = user.id;
                 res.redirect('/dashboard');
             } else {
