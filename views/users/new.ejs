@@ -1,29 +1,39 @@
 <%- include('../partials/header') %>
 
-<div class="card text-center bg-dark text-white mt-5 shadow-lg">
+<div class="card text-center bg-light text-dark mt-5 shadow-lg">
     <div class="card-header">Sign Up</div>
     <div class="card-body">
 
-        <form action="/users" method="POST">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input class="form-control" id="username" name="username" type="text">
-            </div>
+        <form action="/users" method="POST" class="needs-validation">
+            <%- renderInput({
+                name: 'username',
+                type: 'text',
+                label: 'Username',
+                value: user.username,
+                errors
+            }) %>
 
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input class="form-control" id="email" name="email" type="email">
-            </div>
+            <%- renderInput({
+                name: 'email',
+                type: 'email',
+                label: 'Email',
+                value: user.email,
+                errors
+            }) %>
 
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input class="form-control" id="password" name="password" type="password">
-            </div>
+            <%- renderInput({
+                name: 'password',
+                type: 'password',
+                label: 'Password',
+                errors
+            }) %>
 
-            <div class="form-group">
-                <label for="passwordConfirmation">Password Confirmation:</label>
-                <input class="form-control" id="passwordConfirmation" name="passwordConfirmation" type="password">
-            </div>
+            <%- renderInput({
+                type: 'password',
+                name: 'passwordConfirmation',
+                label: 'Password Confirmation',
+                errors
+            }) %>
 
             <input type="submit" value="Sign Up" class="btn btn-success btn-block">
         </form>

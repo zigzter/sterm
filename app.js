@@ -8,6 +8,7 @@ const session = require('express-session');
 const pgSession = require('connect-pg-simple')({ session });
 const helmet = require('helmet');
 const methodOverride = require('method-override');
+const formHelpers = require('./helpers/form');
 
 const Game = require('./models/game');
 const User = require('./models/user');
@@ -19,16 +20,16 @@ app.set('view engine', 'ejs');
 app.use(helmet());
 app.use(helmet.xssFilter());
 app.use(express.static('public'));
+app.locals.errors = [];
+Object.assign(app.locals, formHelpers);
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-    methodOverride((req) => {
-        if (typeof req.body === 'object' && req.body._method) {
-            const method = req.body._method;
-            delete req.body._method;
-            return method;
-        }
-    }),
-);
+app.use(methodOverride((req) => {
+    if (typeof req.body === 'object' && req.body._method) {
+        const method = req.body._method;
+        delete req.body._method;
+        return method;
+    }
+}));
 
 // STORING SESSIONS
 
