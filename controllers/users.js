@@ -7,10 +7,15 @@ const validateUser = [
         .withMessage('Username must be present')
         .custom(async (username) => {
             if (await knex('users').where({ username }).first()) {
-                throw new Error('Username must be unique');
+                throw new Error('Username is taken');
             }
         }),
-    body('email').not().isEmpty().withMessage('Email must be present'),
+    body('email').not().isEmpty().withMessage('Email must be present')
+        .custom(async (email) => {
+            if (await knex('users').where({ email }).first()) {
+                throw new Error('Email is already in use')
+            }
+        }),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
     body('passwordConfirmation').custom((value, { req }) => {
         if (value !== req.body.password) {

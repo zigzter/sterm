@@ -2,12 +2,13 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const bodyParser = require('body-parser');
 const pg = require('pg');
+const helmet = require('helmet');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')({ session });
-const helmet = require('helmet');
+const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
+const flash = require('connect-flash');
 const formHelpers = require('./helpers/form');
 
 const Game = require('./models/game');
@@ -15,7 +16,11 @@ const User = require('./models/user');
 const Ttt = require('./games/tictactoe');
 const C4 = require('./games/connect4');
 
+// APP CONFIG =======================================================
+
 app.set('view engine', 'ejs');
+
+// app.enable('trust proxy'); // Enable for Heroku
 
 app.use(helmet());
 app.use(helmet.xssFilter());
@@ -31,7 +36,7 @@ app.use(methodOverride((req) => {
     }
 }));
 
-// STORING SESSIONS
+// STORING SESSIONS =================================================
 
 const pgPool = new pg.Pool({
     user: 'ziggy',
@@ -51,7 +56,16 @@ const sessionMiddleware = session({
 
 app.use(sessionMiddleware);
 
-// SET CURRENT USER
+// FLASHES ==========================================================
+
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.flash = req.session.flash;
+    next();
+});
+
+// SET CURRENT USER =================================================
 
 app.use(async (req, res, next) => {
     const { userId } = req.session;
@@ -70,13 +84,13 @@ app.use(async (req, res, next) => {
     }
 });
 
-// ROUTES
+// ROUTES ===========================================================
 
 const indexRouter = require('./routes');
 
 app.use('/', indexRouter);
 
-// SOCKETS
+// SOCKETS ==========================================================
 
 io.use((socket, next) => {
     sessionMiddleware(socket.request, {}, next);
@@ -91,7 +105,6 @@ io.use(async (socket, next) => {
 });
 
 io.on('connection', (socket) => {
-    console.log(`${ socket.currentUser.username } connected`);
     let game;
     socket.on('join-room', (data) => {
         const { roomId } = data;
