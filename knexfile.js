@@ -1,18 +1,22 @@
-// Update with your config settings.
-
-module.exports = {
-
-  development: {
+const commonConfig = {
     client: 'pg',
     connection: {
-      database: 'sterm',
-      username: 'ziggy',
-      password: 'yeezy'
+        database: 'sterm',
+        username: 'ziggy',
+        password: 'yeezy',
     },
     migrations: {
-      tableName: 'migrations',
-      directory: './db/migrations'
+        tableName: 'migrations',
+        directory: './db/migrations',
     }
-  }
+}
 
+module.exports = {
+    development: {
+        ...commonConfig,
+    },
+    production: {
+        ...commonConfig,
+        connection: process.env.DATABASE_URL,
+    },
 };

@@ -30,6 +30,7 @@ module.exports = {
         },
     ],
     destroy(req, res) {
+        req.flash('success', 'Logged out!');
         req.session.userId = undefined;
         res.redirect('/');
     },
