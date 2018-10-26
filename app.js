@@ -124,7 +124,7 @@ io.on('connection', (socket) => {
     });
     socket.on('game-init', async (data) => {
         const { roomId, userId } = data;
-        const gameData = await Game.fetchGame(roomId);
+        const gameData = await Game.fetch(roomId);
         if (gameData.game_type === 'tictactoe') {
             game = new Ttt(gameData);
         } else if (gameData.game_type === 'connect4') {

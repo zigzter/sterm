@@ -19,7 +19,7 @@ module.exports = class Game {
         return knex('games').where({ room_id }).update({ is_public: true }).then();
     }
 
-    static async fetchGame(room_id) {
+    static async fetch(room_id) {
         return knex('games').where({ room_id }).first();
     }
     
