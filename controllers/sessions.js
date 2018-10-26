@@ -11,7 +11,7 @@ module.exports = {
         res.render('sessions/new');
     },
     create: [
-        limiter,
+        // limiter,
         async (req, res, next) => {
             const { username, password } = req.body;
             try {
@@ -22,7 +22,7 @@ module.exports = {
                     res.redirect('/dashboard');
                 } else {
                     req.flash('warning', 'Invalid credentials');
-                    res.render('sessions/new');
+                    res.redirect('/sessions/new');
                 }
             } catch (err) {
                 next(err);

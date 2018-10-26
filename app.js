@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const flash = require('connect-flash');
 const formHelpers = require('./helpers/form');
+const cookieSession = require('cookie-session');
 
 const Game = require('./models/game');
 const User = require('./models/user');
@@ -38,20 +39,26 @@ app.use(methodOverride((req) => {
 
 // STORING SESSIONS =================================================
 
-const pgPool = new pg.Pool({
-    user: 'ziggy',
-    password: 'yeezy',
-    database: 'sterm',
-});
+// const pgPool = new pg.Pool({
+//     user: 'ziggy',
+//     password: 'yeezy',
+//     database: 'sterm',
+// });
 
-const sessionMiddleware = session({
-    store: new pgSession({
-        pool: pgPool,
-    }),
-    secret: 'bongo cat',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false, maxAge: 680000000 },
+// const sessionMiddleware = session({
+//     store: new pgSession({
+//         pool: pgPool,
+//     }),
+//     secret: 'bongo cat',
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: { secure: false, maxAge: 680000000 },
+// });
+
+const sessionMiddleware = cookieSession({
+    name: 'session',
+    keys: ['super secret', 'things and stuff'],
+    maxAge: 24 * 60 * 60 * 1000,
 });
 
 app.use(sessionMiddleware);
@@ -106,9 +113,14 @@ io.use(async (socket, next) => {
 
 io.on('connection', (socket) => {
     let game;
+    const users = [];
     socket.on('join-room', (data) => {
         const { roomId } = data;
         socket.join(roomId);
+        Object.values(io.of('/').connected).map((user) => {
+            users.push(user.currentUser.username);
+        });
+        io.sockets.to(roomId).emit('new-user', { users });
     });
     socket.on('game-init', async (data) => {
         const { roomId, userId } = data;
@@ -159,9 +171,25 @@ io.on('connection', (socket) => {
         const { msg, username, roomId } = msgData;
         io.sockets.to(roomId).emit('new-message', { msg, username });
     });
+    socket.on('private-message', (msgData) => {
+        const { recip, pmMessage, author } = msgData;
+        const [targetSocket] = Object.values(io.of('/').connected).filter((user) => {
+            return user.currentUser.username === recip;
+        });
+        if (!targetSocket) {
+            socket.emit('no-user');
+        } else if (targetSocket && pmMessage) {
+            const socketId = targetSocket.conn.id;
+            io.sockets.to(`${ socketId }`).emit('private-message', { pmMessage, author });
+        }
+    });
+    socket.on('disconnect', () => {
+        const { username } = socket.currentUser;
+        io.sockets.to('global').emit('user-left', { discUser: username });
+    });
 });
 
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => {
-    `Listening on port ${ PORT }`;
+    console.log(`Listening on port ${ PORT }`);
 });

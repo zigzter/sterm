@@ -1,8 +1,5 @@
-.container {
-    max-width: 540px;
-}
-
 #game {
+    max-width: 540px;
     width: 50vh;
     height: 50vh;
     margin: 0 auto;
@@ -48,6 +45,22 @@
     margin: 0;
     height: 30px;
     font-size: 1.1rem;
+}
+
+.privateMessage {
+    margin: 0;
+    height: 30px;
+    font-size: 1.1rem;
+    color: purple;
+}
+
+.pmAuthor {
+    font-weight: bold;
+}
+
+.pmAuthor:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .message:nth-child(even) {
@@ -125,4 +138,9 @@
 
 .c4wins {
     background-color: greenyellow;
+}
+
+.user:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }

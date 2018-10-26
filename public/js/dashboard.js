@@ -37,6 +37,18 @@ $('#refresh').click((e) => {
 
 $('#send-message').click(() => {
     const msg = message.val();
+    if (msg.startsWith('/msg')) {
+        const author = username;
+        const [ cmd, recip, ...messageArray ] = msg.split(' ');
+        const pmMessage = messageArray.join(' ');
+        const msgP = $('<p>');
+        msgP.html(`Sent to ${ recip }: ${ pmMessage }`);
+        msgP.addClass('privateMessage');
+        chatroom.append(msgP);
+        chatroom.scrollTop = chatroom.scrollHeight;
+        message.val('');
+        return socket.emit('private-message', { recip, pmMessage, author });
+    }
     socket.emit('new-message', { msg, username, roomId });
     message.val('');
 });
@@ -55,4 +67,39 @@ $(document).keypress((event) => {
     if (keycode === 13) {
         $('#send-message').click();
     }
+});
+
+socket.on('new-user', ({ users }) => {
+    $('#users').html('');
+    users.map((user) => {
+        $('#users').append(`<p class="user" id="${ user }">${ user }</p>`);
+        $(`#${ user }`).click(() => {
+            message.val(`/msg ${ user } `);
+            message.focus();
+        });
+    });
+});
+
+socket.on('user-left', ({ discUser }) => {
+    document.getElementById(discUser).remove();
+});
+
+socket.on('private-message', ({ pmMessage, author }) => {
+    const msgP = $('<p>');
+    msgP.html(`Whisper from <span class="pmAuthor">${ author }</span>: ${ pmMessage }`);
+    msgP.addClass('privateMessage');
+    chatroom.append(msgP);
+    $('.pmAuthor').click(() => {
+        message.val(`/msg ${ author } `);
+        message.focus();
+    });
+    chatroom.scrollTop = chatroom.scrollHeight;
+});
+
+socket.on('no-user', () => {
+    const msgP = $('<p>');
+    msgP.html('<strong>Server</strong>: User is offline or does not exist');
+    msgP.addClass('privateMessage');
+    chatroom.append(msgP);
+    chatroom.scrollTop = chatroom.scrollHeight;
 });
