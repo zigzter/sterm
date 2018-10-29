@@ -133,7 +133,7 @@ io.on('connection', (socket) => {
         await game.fetchMoves();
         if (game.player1 !== userId && !game.player2) {
             game.player2 = userId;
-            game.setPlayer2(userId);
+            await game.setPlayer2(userId);
         }
         const { player1, player2 } = game;
         if (player2 && player2 === userId) {
@@ -159,10 +159,11 @@ io.on('connection', (socket) => {
                 const { player, moves } = winningUser;
                 io.sockets.to(roomId).emit('game-over', { player, moves });
                 if (player !== 'draw') {
-                    Game.setWinner(roomId, userId);
-                    User.addWin(userId);
+                    await Game.setWinner(roomId, userId);
+                    await Game.update(roomId, 'complete');
+                    await User.addWin(userId);
                 } else {
-                    Game.setWinner(roomId, 12);
+                    await Game.update(roomId, 'draw');
                 }
             }
         }

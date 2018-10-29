@@ -1,7 +1,7 @@
 const knex = require('../db/client');
 
 module.exports = class Game {
-    constructor({ id, room_id, player1, player2, is_public, game_type, winner_id }) {
+    constructor({ id, room_id, player1, player2, is_public, game_type, winner_id, game_state }) {
         this.id = id;
         this.room_id = room_id;
         this.player1 = player1;
@@ -9,10 +9,11 @@ module.exports = class Game {
         this.is_public = is_public;
         this.game_type = game_type;
         this.winner_id = winner_id;
+        this.game_state = game_state;
     }
 
     static async findPublicGames() {
-        return knex('games').where({ is_public: true }).whereNull('winner_id');
+        return knex('games').where({ is_public: true }).whereNull('game_state');
     }
 
     static async setPublic(room_id) {
@@ -30,6 +31,10 @@ module.exports = class Game {
             move,
         });
         return this;
+    }
+
+    static async update(room_id, game_state) {
+        return knex('games').where({ room_id }).update({ game_state }).then();
     }
 
     static async lastMove(game_id) {
