@@ -2,15 +2,12 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const pg = require('pg');
 const helmet = require('helmet');
-const session = require('express-session');
-const pgSession = require('connect-pg-simple')({ session });
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const flash = require('connect-flash');
-const formHelpers = require('./helpers/form');
 const cookieSession = require('cookie-session');
+const formHelpers = require('./helpers/form');
 
 const Game = require('./models/game');
 const User = require('./models/user');
@@ -21,7 +18,7 @@ const C4 = require('./games/connect4');
 
 app.set('view engine', 'ejs');
 
-// app.enable('trust proxy'); // Enable for Heroku
+app.enable('trust proxy'); // Enable for Heroku
 
 app.use(helmet());
 app.use(helmet.xssFilter());
@@ -38,22 +35,6 @@ app.use(methodOverride((req) => {
 }));
 
 // STORING SESSIONS =================================================
-
-// const pgPool = new pg.Pool({
-//     user: 'ziggy',
-//     password: 'yeezy',
-//     database: 'sterm',
-// });
-
-// const sessionMiddleware = session({
-//     store: new pgSession({
-//         pool: pgPool,
-//     }),
-//     secret: 'bongo cat',
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: { secure: false, maxAge: 680000000 },
-// });
 
 const sessionMiddleware = cookieSession({
     name: 'session',
