@@ -37,8 +37,9 @@
 }
 
 #chatroom {
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
     height: 200px;
+    overflow: auto;
 }
 
 .message {

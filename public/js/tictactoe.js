@@ -114,7 +114,7 @@ $('#send-message').click(() => {
         msgP.html(`Sent to ${ recip }: ${ pmMessage }`);
         msgP.addClass('privateMessage');
         chatroom.append(msgP);
-        chatroom.scrollTop = chatroom.scrollHeight;
+        chatroom.scrollTop(chatroom.prop('scrollHeight'));
         message.val('');
         return socket.emit('private-message', { recip, pmMessage, author });
     }
@@ -128,7 +128,7 @@ socket.on('new-message', (msgData) => {
     msgP.html(`<strong>${ username }</strong>: ${ msg }`);
     msgP.addClass('message');
     chatroom.append(msgP);
-    chatroom.scrollTop = chatroom.scrollHeight;
+    chatroom.scrollTop(chatroom.prop('scrollHeight'));
 });
 
 $(document).keypress((event) => {
@@ -147,7 +147,7 @@ socket.on('private-message', ({ pmMessage, author }) => {
         message.val(`/msg ${ author } `);
         message.focus();
     });
-    chatroom.scrollTop = chatroom.scrollHeight;
+    chatroom.scrollTop(chatroom.prop('scrollHeight'));
 });
 
 socket.on('no-user', () => {
@@ -155,5 +155,5 @@ socket.on('no-user', () => {
     msgP.html('<strong>Server</strong>: User is offline or does not exist');
     msgP.addClass('privateMessage');
     chatroom.append(msgP);
-    chatroom.scrollTop = chatroom.scrollHeight;
+    chatroom.scrollTop(chatroom.prop('scrollHeight'));
 });

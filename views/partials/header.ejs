@@ -42,6 +42,11 @@
 <% for (let type in flash) {
   let msg;
   while (msg = flash[type].pop()) { %>
-    <div class="alert alert-<%= type %>"><%= msg %></div>
+    <div class="alert alert-<%= type %>">
+      <%= msg %>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
   <% }
 } %>
