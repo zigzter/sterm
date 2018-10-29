@@ -18,7 +18,7 @@ const C4 = require('./games/connect4');
 
 app.set('view engine', 'ejs');
 
-app.enable('trust proxy'); // Enable for Heroku
+app.enable('trust proxy', 1); // Enable for Heroku
 
 app.use(helmet());
 app.use(helmet.xssFilter());
