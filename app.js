@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const flash = require('connect-flash');
 const cookieSession = require('cookie-session');
+const escape = require('escape-html');
 const formHelpers = require('./helpers/form');
 
 const Game = require('./models/game');
@@ -150,11 +151,12 @@ io.on('connection', (socket) => {
         }
     });
     socket.on('new-message', (msgData) => {
-        const { msg, username, roomId } = msgData;
+        let { msg, username, roomId } = msgData;
+        msg = escape(msg);
         io.sockets.to(roomId).emit('new-message', { msg, username });
     });
     socket.on('private-message', (msgData) => {
-        const { recip, pmMessage, author } = msgData;
+        let { recip, pmMessage, author } = msgData;
         const [targetSocket] = Object.values(io.of('/').connected).filter((user) => {
             return user.currentUser.username === recip;
         });
@@ -162,6 +164,7 @@ io.on('connection', (socket) => {
             socket.emit('no-user');
         } else if (targetSocket && pmMessage) {
             const socketId = targetSocket.conn.id;
+            pmMessage = escape(pmMessage);
             io.sockets.to(`${ socketId }`).emit('private-message', { pmMessage, author });
         }
     });
